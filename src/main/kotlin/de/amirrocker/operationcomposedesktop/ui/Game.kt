@@ -70,7 +70,8 @@ class Game {
         val deltaTime = (nanos - previousTimeNanos).coerceAtLeast(0)
         previousTimeNanos = nanos
         elapsedTime = nanos - startTime
-//        println("elapsed time in game loop: $elapsedTime")
+        val formattedTime = elapsedTime.div(1000000000)-113130
+        println("elapsed time in game loop: $formattedTime secs")
 
         squares.forEach {
 //            it.update()
