@@ -52,7 +52,7 @@ data class MapPieceData(val game:Game, val velocity:Float, val name:String, val 
     }
 
     fun click() {
-        println("map piece clicked")
+        println("map piece clicked at xPosition: $xPosition and yPositions: $yPosition")
 //        position.value = 40.0f
     }
 }

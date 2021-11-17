@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import kotlin.random.Random
 
 const val mapSquareSize = 40
-const val numUnits = 2
+const val numUnits = 6
 const val numRows = 8
 const val numColumns = 8
 const val numTiles = numRows * numColumns
@@ -31,14 +31,31 @@ class Game {
     var paused by mutableStateOf(false)
     var finished by mutableStateOf(false)
 
+    var buttonText by mutableStateOf("Start Here")
+
     var squares = mutableStateListOf<List<List<MapSquareData>>>()
         private set
     var pieces = mutableStateListOf<MapPieceData>()
         private set
 
+    var clickedPos:Pair<Pair<Int, Int>, Pair<Int, Int>> = Pair(Pair(2,3), Pair(7, 6))
+
+
+    fun resume() {
+        this.paused = false
+        buttonText = "Pause"
+    }
+
+    fun pause() {
+
+        this.paused = true
+        buttonText = "Resume"
+    }
+
     fun start() {
         started = true
 
+        buttonText = "Pause"
         squares.clear()
         pieces.clear()
 
@@ -66,22 +83,47 @@ class Game {
         }
     }
 
+    // render loop
     fun update(nanos:Long) {
-        val deltaTime = (nanos - previousTimeNanos).coerceAtLeast(0)
-        previousTimeNanos = nanos
-        elapsedTime = nanos - startTime
-        val formattedTime = elapsedTime.div(1000000000)-113130
-        println("elapsed time in game loop: $formattedTime secs")
+
+        val deltaTime = calculateElapsedTimeNanos(nanos = nanos, logToConsole = false)
+
+//        tempPathFind()
+
+        val pathfinder = Pathfinder.useWith(this).findPath(from=clickedPos.first, to=clickedPos.second).getResult()
 
         squares.forEach {
 //            it.update()
         }
 
-        pieces.forEach {
-            it.update(10)
+        pieces.forEachIndexed { index:Int, piece:MapPieceData ->
+            piece.update(deltaTime)
+
+            piece.xPosition.value = pathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+            piece.yPosition.value = pathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+
         }
     }
+
+    private fun calculateElapsedTimeNanos(nanos:Long, logToConsole:Boolean = false): Long {
+        val deltaTime = (nanos - previousTimeNanos).coerceAtLeast(0)
+        previousTimeNanos = nanos
+        elapsedTime = nanos - startTime
+        if( logToConsole ) println("elapsed time in game loop: $elapsedTime nanosecs")
+        return deltaTime
+    }
+
+    fun tempPathFind() {
+        val from = Pair(2,3)
+        val to = Pair(7,6)
+//        val path:Pair<Pair<Int, Int>, Pair<Int, Int>> = Pathfinder.useWith(this).findPath(from=from, to=to)
+        val pathfinder = Pathfinder.useWith(this).findPath(from=from, to=to).getResult()
+        println("pathCol: ${pathfinder.pathCol}")
+        println("pathRow: ${pathfinder.pathRow}")
+    }
+
 }
+
 
 @Composable
 @Preview
@@ -94,10 +136,19 @@ fun OperationXGame() {
         Row {
 
             Button(onClick = {
-                println("start button clicked")
-                game.start()
+
+                if(!game.started) {
+                    println("start game")
+                    game.start()
+                } else
+                    if( game.started && !game.paused ) {
+                        game.pause()
+                    } else
+                        if( game.paused ) {
+                            game.resume()
+                        }
             }) {
-                Text(if(game.started) "Pause" else "Resume", fontSize = 40.sp)
+                Text(game.buttonText, fontSize = 40.sp)
             }
         }
 
