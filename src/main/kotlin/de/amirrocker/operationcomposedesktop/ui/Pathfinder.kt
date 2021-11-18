@@ -31,13 +31,8 @@ class Pathfinder(
         var deltaRow = to.second - from.second
 
         // path init
-//        var stepCol:Int = 1
-//        var stepRow:Int = 1
         var currentStep = 0
         var fraction: Float = 0.0f
-
-        println("deltaCol: $deltaCol")
-        println("deltaRow: $deltaRow")
 
         val stepCol = if(deltaCol < 0) -1 else 1
         val stepRow = if(deltaRow < 0) -1 else 1
@@ -45,11 +40,13 @@ class Pathfinder(
         deltaCol = abs(deltaCol*2)
         deltaRow = abs(deltaRow*2)
 
-        currentStep++
+//        currentStep++
 
-        pathRow.add(nextRow)
-        pathCol.add(nextCol)
+        pathRow.add(currentStep, nextRow)
+        pathCol.add(currentStep, nextCol)
 
+        println("deltaCol: $deltaCol")
+        println("deltaRow: $deltaRow")
 
         if( deltaCol > deltaRow ) {
             println("deltaCol > deltaRow")
@@ -67,9 +64,9 @@ class Pathfinder(
                 nextCol += stepCol
                 fraction += deltaRow
 
+                currentStep++
                 pathRow.add(currentStep, nextRow)
                 pathCol.add(currentStep, nextCol)
-                currentStep++
             }
 
         } else {
@@ -90,9 +87,9 @@ class Pathfinder(
                 nextRow += stepRow
                 fraction += deltaCol
 
+                currentStep++
                 pathRow.add(currentStep, nextRow)
                 pathCol.add(currentStep, nextCol)
-                currentStep++
             }
 
         }

@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import kotlin.random.Random
 
 const val mapSquareSize = 40
-const val numUnits = 6
+//const val numUnits = 8
 const val numRows = 8
 const val numColumns = 8
 const val numTiles = numRows * numColumns
@@ -38,7 +38,8 @@ class Game {
     var pieces = mutableStateListOf<MapPieceData>()
         private set
 
-    var clickedPos:Pair<Pair<Int, Int>, Pair<Int, Int>> = Pair(Pair(2,3), Pair(7, 6))
+    var clickDestinationSquare = Pair(1, 5)
+    var clickedPos:Pair<Pair<Int, Int>, Pair<Int, Int>> = Pair(Pair(8,1), clickDestinationSquare /*Pair(1, 5)*/)
 
 
     fun resume() {
@@ -71,13 +72,16 @@ class Game {
             }))
         }
 
-        repeat(numUnits) { index ->
+        val pathfinder = Pathfinder.useWith(this).findPath(from=clickedPos.first, to=clickedPos.second).getResult()
+
+//        repeat(numUnits) { index ->
+        repeat(pathfinder.pathCol.count()) { index ->
             pieces.add(
                 MapPieceData(this, index * 1.5f, "item $index", Color.Green).also { piece ->
                     // TODO a number of ext. functions are in order :P also stick to one representation value
                     //  - prefer col/row to abs. values
-                    piece.xPosition.value = Random.nextInt(0, 8).times(mapSquareSize)
-                    piece.yPosition.value = Random.nextInt(0, 8).times(mapSquareSize)
+                    piece.xPosition.value = pathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+                    piece.yPosition.value = pathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
                 }
             )
         }
@@ -86,23 +90,29 @@ class Game {
     // render loop
     fun update(nanos:Long) {
 
+        pieces.clear()
+
         val deltaTime = calculateElapsedTimeNanos(nanos = nanos, logToConsole = false)
 
 //        tempPathFind()
 
-        val pathfinder = Pathfinder.useWith(this).findPath(from=clickedPos.first, to=clickedPos.second).getResult()
+        val pathfinder = Pathfinder.useWith(this).findPath(from=clickedPos.first, to=clickDestinationSquare).getResult()
 
         squares.forEach {
 //            it.update()
         }
 
-        pieces.forEachIndexed { index:Int, piece:MapPieceData ->
-            piece.update(deltaTime)
-
-            piece.xPosition.value = pathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
-            piece.yPosition.value = pathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
-
+        repeat(pathfinder.pathCol.count()) { index ->
+            pieces.add(
+                MapPieceData(this, index * 1.5f, "item $index", Color.Green).also { piece ->
+                    // TODO a number of ext. functions are in order :P also stick to one representation value
+                    //  - prefer col/row to abs. values
+                    piece.xPosition.value = pathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+                    piece.yPosition.value = pathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+                }
+            )
         }
+
     }
 
     private fun calculateElapsedTimeNanos(nanos:Long, logToConsole:Boolean = false): Long {
