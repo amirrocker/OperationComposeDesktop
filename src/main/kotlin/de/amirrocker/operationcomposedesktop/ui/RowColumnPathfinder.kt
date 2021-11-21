@@ -2,7 +2,7 @@ package de.amirrocker.operationcomposedesktop.ui
 
 import kotlin.math.abs
 
-class Pathfinder(
+class RowColumnPathfinder(
     private val game:Game
 ) {
 
@@ -12,14 +12,14 @@ class Pathfinder(
     fun getResult() = MapCoordinates(pathCol, pathRow)
 
     companion object {
-        fun useWith(game:Game):Pathfinder = Pathfinder(game)
+        fun useWith(game:Game):RowColumnPathfinder = RowColumnPathfinder(game)
     }
 
 //    data class MapCoordinates(val pair:Pair<Int, Int>)
     data class MapCoordinates(val pathCol:List<Int>, val pathRow:List<Int>)
 
     // todo use Point / Vector objects - we should have some somewhere
-    fun findPath(from:Pair<Int, Int>, to:Pair<Int, Int>):Pathfinder {
+    fun findPath(from:Pair<Int, Int>, to:Pair<Int, Int>):RowColumnPathfinder {
 
         var nextCol = from.first
         var nextRow = from.second

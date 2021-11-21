@@ -11,7 +11,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.random.Random
 
 const val mapSquareSize = 40
 //const val numUnits = 8
@@ -72,16 +71,16 @@ class Game {
             }))
         }
 
-        val pathfinder = Pathfinder.useWith(this).findPath(from=clickedPos.first, to=clickedPos.second).getResult()
+        val rowColumnPathfinder = RowColumnPathfinder.useWith(this).findPath(from=clickedPos.first, to=clickedPos.second).getResult()
 
 //        repeat(numUnits) { index ->
-        repeat(pathfinder.pathCol.count()) { index ->
+        repeat(rowColumnPathfinder.pathCol.count()) { index ->
             pieces.add(
                 MapPieceData(this, index * 1.5f, "item $index", Color.Green).also { piece ->
                     // TODO a number of ext. functions are in order :P also stick to one representation value
                     //  - prefer col/row to abs. values
-                    piece.xPosition.value = pathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
-                    piece.yPosition.value = pathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+                    piece.xPosition.value = rowColumnPathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+                    piece.yPosition.value = rowColumnPathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
                 }
             )
         }
@@ -96,19 +95,19 @@ class Game {
 
 //        tempPathFind()
 
-        val pathfinder = Pathfinder.useWith(this).findPath(from=clickedPos.first, to=clickDestinationSquare).getResult()
+        val rowColumnPathfinder = RowColumnPathfinder.useWith(this).findPath(from=clickedPos.first, to=clickDestinationSquare).getResult()
 
         squares.forEach {
 //            it.update()
         }
 
-        repeat(pathfinder.pathCol.count()) { index ->
+        repeat(rowColumnPathfinder.pathCol.count()) { index ->
             pieces.add(
                 MapPieceData(this, index * 1.5f, "item $index", Color.Green).also { piece ->
                     // TODO a number of ext. functions are in order :P also stick to one representation value
                     //  - prefer col/row to abs. values
-                    piece.xPosition.value = pathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
-                    piece.yPosition.value = pathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+                    piece.xPosition.value = rowColumnPathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+                    piece.yPosition.value = rowColumnPathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
                 }
             )
         }
@@ -127,9 +126,9 @@ class Game {
         val from = Pair(2,3)
         val to = Pair(7,6)
 //        val path:Pair<Pair<Int, Int>, Pair<Int, Int>> = Pathfinder.useWith(this).findPath(from=from, to=to)
-        val pathfinder = Pathfinder.useWith(this).findPath(from=from, to=to).getResult()
-        println("pathCol: ${pathfinder.pathCol}")
-        println("pathRow: ${pathfinder.pathRow}")
+        val rowColumnPathfinder = RowColumnPathfinder.useWith(this).findPath(from=from, to=to).getResult()
+        println("pathCol: ${rowColumnPathfinder.pathCol}")
+        println("pathRow: ${rowColumnPathfinder.pathRow}")
     }
 
 }
