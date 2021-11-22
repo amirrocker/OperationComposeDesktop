@@ -18,6 +18,10 @@ const val numRows = 8
 const val numColumns = 8
 const val numTiles = numRows * numColumns
 
+const val START_HERE = "Start Here"
+
+
+
 class Game {
 
     private var previousTimeNanos = Long.MAX_VALUE
@@ -26,19 +30,27 @@ class Game {
 
     var size by mutableStateOf(Pair(0.dp, 0.dp))
 
+    /* game states */
     var started by mutableStateOf(false)
     var paused by mutableStateOf(false)
     var finished by mutableStateOf(false)
 
-    var buttonText by mutableStateOf("Start Here")
+    /* click handler helper data */
+    var clickDestinationSquare = Pair(1, 5)
+    var clickedPos:Pair<Pair<Int, Int>, Pair<Int, Int>> = Pair(Pair(8,1), clickDestinationSquare /*Pair(1, 5)*/)
 
+    /* Simple game button */
+    var buttonText by mutableStateOf(START_HERE)
+
+    // restrict access
     var squares = mutableStateListOf<List<List<MapSquareData>>>()
         private set
+
     var pieces = mutableStateListOf<MapPieceData>()
         private set
 
-    var clickDestinationSquare = Pair(1, 5)
-    var clickedPos:Pair<Pair<Int, Int>, Pair<Int, Int>> = Pair(Pair(8,1), clickDestinationSquare /*Pair(1, 5)*/)
+    var infantryPieces = mutableStateListOf<InfantryPieceData>()
+        private set
 
 
     fun resume() {
@@ -59,31 +71,32 @@ class Game {
         squares.clear()
         pieces.clear()
 
-        // for debug and for myself I want to draw squares on the map
-        val loop = 0..numRows
-        /*val result:List<List<MapSquareData>> = */loop.map { row:Int ->
-            squares.add(listOf( loop.map { column: Int ->
-                println("row: $row and col: $column")
-                MapSquareData(this,
-                    xPos = column * mapSquareSize,
-                    yPos = row * mapSquareSize,
-                    Color.DarkGray)
-            }))
-        }
+//        // for debug and for myself I want to draw squares on the map
+//        val loop = 0..numRows
+//            loop.map { row:Int ->
+//                squares.add(listOf( loop.map { column: Int ->
+//                    println("row: $row and col: $column")
+//                    MapSquareData(this,
+//                        xPos = column * mapSquareSize,
+//                        yPos = row * mapSquareSize,
+//                        Color.DarkGray)
+//                })
+//            )
+//        }
+        GameMap.createMap(this, squares)
 
-        val rowColumnPathfinder = RowColumnPathfinder.useWith(this).findPath(from=clickedPos.first, to=clickedPos.second).getResult()
 
-//        repeat(numUnits) { index ->
-        repeat(rowColumnPathfinder.pathCol.count()) { index ->
-            pieces.add(
-                MapPieceData(this, index * 1.5f, "item $index", Color.Green).also { piece ->
-                    // TODO a number of ext. functions are in order :P also stick to one representation value
-                    //  - prefer col/row to abs. values
-                    piece.xPosition.value = rowColumnPathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
-                    piece.yPosition.value = rowColumnPathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
-                }
-            )
-        }
+//        val rowColumnPathfinder = RowColumnPathfinder.useWith(this).findPath(from=clickedPos.first, to=clickedPos.second).getResult()
+//        repeat(rowColumnPathfinder.pathCol.count()) { index ->
+//            pieces.add(
+//                MapPieceData(this, index * 1.5f, "item $index", Color.Green).also { piece ->
+//                    // TODO a number of ext. functions are in order :P also stick to one representation value
+//                    //  - prefer col/row to abs. values
+//                    piece.xPosition.value = rowColumnPathfinder.pathCol[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+//                    piece.yPosition.value = rowColumnPathfinder.pathRow[index].times(mapSquareSize) // Random.nextInt(0, 8).times(mapSquareSize)
+//                }
+//            )
+//        }
     }
 
     // render loop
@@ -121,16 +134,6 @@ class Game {
         if( logToConsole ) println("elapsed time in game loop: $elapsedTime nanosecs")
         return deltaTime
     }
-
-    fun tempPathFind() {
-        val from = Pair(2,3)
-        val to = Pair(7,6)
-//        val path:Pair<Pair<Int, Int>, Pair<Int, Int>> = Pathfinder.useWith(this).findPath(from=from, to=to)
-        val rowColumnPathfinder = RowColumnPathfinder.useWith(this).findPath(from=from, to=to).getResult()
-        println("pathCol: ${rowColumnPathfinder.pathCol}")
-        println("pathRow: ${rowColumnPathfinder.pathRow}")
-    }
-
 }
 
 

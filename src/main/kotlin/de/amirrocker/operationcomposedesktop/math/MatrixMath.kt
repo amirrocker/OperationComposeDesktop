@@ -1,5 +1,8 @@
 package de.amirrocker.operationcomposedesktop.math
 
+import kotlin.math.cos
+import kotlin.math.sin
+
 
 //****************** GEOMETRY ****************************** //
 
@@ -23,9 +26,17 @@ data class Point(
     val y: Float,
     val z: Float
 ) {
+    // simple movement along single axis
     fun translateY(dy: Float) = Point(x, y.plus(dy), z)
     fun translateX(dx: Float) = Point(x.plus(dx), y, z)
     fun translateZ(dz: Float) = Point(x, y, z.plus(dz))
+
+    // rotation around single axis
+    // cos(x) - sin(x)
+    // sin(x) + cos(x)
+//    fun rotate(angle:Float) =
+//        Matrix.asMatrix(Pair(2,2), arrayOf(cos(x), -sin(y), sin(x), cos(y)))
+
 }
 
 data class Circle(

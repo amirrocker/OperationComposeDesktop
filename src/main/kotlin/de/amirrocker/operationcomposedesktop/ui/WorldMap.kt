@@ -10,6 +10,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 
+
+/**
+ * this is the actual map showing the topology and terrain. For now it is simply a grey square as a placeholder.
+ * TODO figure an artstyle and what to show
+ */
 @Composable
 fun WorldMap() {
 
