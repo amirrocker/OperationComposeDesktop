@@ -6,11 +6,25 @@ typealias Longitude = Long
 typealias Latitude = Long
 
 typealias WeaponDamage = Int
-typealias DistanceTraveled = Int
+typealias DistanceTraveled = Double
+
+/* we deal with hex tiles so we have six possible directions to turn to */
+typealias SidesTurned = Int
 typealias SupportGiven = Int
 typealias ResearchDone = Int
 
-
+/**
+ * the different Unit types that can be used to represent the units on the map.
+ * Unit : the base class for each unit in the game. Each map item that one can interact with is-a Unit.
+ *
+ * ScienceUnit : each unit that can do any type of science stuff is-a ScienceUnit.
+ * (e.g. Engineer-Troops, ABC-Troops, EWO(Electronic Warfare Operators)-Troops)
+ *
+ * SupportUnit : each unit that has a support-role, such as On- and Off-map Artillery, Medics, Ammo- and Fuel-Bowsers, are
+ * support units.
+ *
+ * note that this is a naive first sketch
+ */
 sealed interface Unit {
     fun attack(longitude: Longitude, latitude: Latitude)
     fun move(longitude: Longitude, latitude: Latitude)
@@ -32,7 +46,7 @@ interface Infantry : Unit
 interface Vehicle : Unit
 
 
-class Soldier(
+open class Soldier(
     private val weapon:Weapon,
     private val legs:Legs
 ) : Infantry {
@@ -57,6 +71,23 @@ class Soldier(
         val distanceTraveled = legs.move()
         println("Soldier moved: $distanceTraveled m")
     }
+}
+
+class OrientationSoldier : Soldier(
+    M4AssaultRifle(),
+    AthleticLegs()
+), Orientable {
+
+    override val orientation: Float
+        get() = if(orientation.isNaN()) {
+            0.0f
+        } else {
+            orientation
+        }
+}
+
+interface Orientable {
+    val orientation : Float  // some angle value ?
 }
 
 // TODO add other gadgets

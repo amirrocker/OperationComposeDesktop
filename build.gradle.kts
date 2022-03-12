@@ -19,12 +19,46 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
 
+    implementation(kotlin("stdlib-jdk8"))
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt")
+
     implementation("com.squareup:kotlinpoet:1.10.2")
+
+    val retrofit_version = "2.9.0"
+
+    implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
+    implementation("com.squareup.retrofit2:retrofit-mock:$retrofit_version")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.4.32")
+
+//    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.2")
 
 }
 
+
+//test {
+//    testLogging {}
+//
+//    useJUnitPlatform {}
+//}
+
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
+}
+
+// https://www.cornerinthemiddle.com/software%20engineering/using-gradle-kotlin-dsl-with-junit5/
+tasks {
+    test {
+        useJUnitPlatform()
+    }
 }
 
 compose.desktop {
@@ -37,3 +71,4 @@ compose.desktop {
         }
     }
 }
+

@@ -1,2 +1,2 @@
 # OperationComposeDesktop
-A look into the desktop verision of compse. 
+A look into the desktop version of compse. 

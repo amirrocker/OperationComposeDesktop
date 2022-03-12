@@ -57,7 +57,7 @@ data class MapSquareData(val game:Game, val xPos:Int, val yPos:Int, val color:Co
         println("map square clicked x:$col y:$row")
 //        position.value = 40.0f
 
-        game.clickDestinationSquare = Pair(col, row)
+//        game.clickDestinationSquare = Pair(col, row)
 
     }
 }

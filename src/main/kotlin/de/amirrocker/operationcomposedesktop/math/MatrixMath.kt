@@ -2,15 +2,16 @@ package de.amirrocker.operationcomposedesktop.math
 
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 //****************** GEOMETRY ****************************** //
 
-sealed interface Geometry {
+sealed interface Geometry<T : Number> {
 
     companion object {
         // find the vector between these two points
-        fun vectorBetween(from: Point, to: Point) =
+        fun vectorBetween(from: Point<Double>, to: Point<Double>) =
             Vector3(
                 to.x - from.x,
                 to.y - from.y,
@@ -19,80 +20,139 @@ sealed interface Geometry {
     }
 }
 
-//****************** VECTOR ****************************** //
 
-data class Point(
-    val x: Float,
-    val y: Float,
-    val z: Float
-) {
+data class Point<T : Number>(
+    val x: T,
+    val y: T,
+    val z: T,
+) : Geometry<T> {
+
     // simple movement along single axis
-    fun translateY(dy: Float) = Point(x, y.plus(dy), z)
-    fun translateX(dx: Float) = Point(x.plus(dx), y, z)
-    fun translateZ(dz: Float) = Point(x, y, z.plus(dz))
+    // check for diff. impl. of T
+    // when(x) is Float -> do this, else do that....
+    fun translateY(dy: T) = Point(x, y.toDouble().plus(dy.toDouble()), z)
+    fun translateX(dx: T) = Point(x.toDouble().plus(dx.toDouble()), y, z)
+    fun translateZ(dz: T) = Point(x, y, z.toDouble().plus(dz.toDouble()))
 
     // rotation around single axis
     // cos(x) - sin(x)
     // sin(x) + cos(x)
-//    fun rotate(angle:Float) =
-//        Matrix.asMatrix(Pair(2,2), arrayOf(cos(x), -sin(y), sin(x), cos(y)))
+
+    // rotate a point on the x-y plane
+    fun rotate2D(angle: Float) =
+        Matrix.asMatrix(Pair(2, 2),
+            arrayOf(cos(x.toDouble()), -sin(y.toDouble()), sin(x.toDouble()), cos(y.toDouble())))
+
+    fun rotate2DAroundPlane(angle: Float, plane: Plane = Plane.X_Y_PLANE) =
+        when (plane) {
+            Plane.X_Y_PLANE -> Matrix.asMatrix(Pair(2, 2),
+                arrayOf(cos(x.toDouble()), -sin(y.toDouble()), sin(x.toDouble()), cos(y.toDouble())))
+            Plane.Z_Y_PLANE -> Matrix.asMatrix(Pair(2, 2),
+                arrayOf(cos(z.toDouble()), -sin(y.toDouble()), sin(z.toDouble()), cos(y.toDouble())))
+            Plane.Z_X_PLANE -> Matrix.asMatrix(Pair(2, 2),
+                arrayOf(cos(z.toDouble()), -sin(x.toDouble()), sin(z.toDouble()), cos(x.toDouble())))
+        }
+
+    fun rotate3D(angle: Float): Nothing = TODO("Need impl.")
 
 }
 
+enum class Plane {
+    X_Y_PLANE,
+    Z_Y_PLANE,
+    Z_X_PLANE,
+}
+
 data class Circle(
-    val center: Point,
-    val radius: Float
+    val center: Point<Double>,
+    val radius: Float,
 ) {
     fun scale(scale: Float) = Circle(center, scale.times(radius))
 }
 
 data class Sphere(
-    val center: Point,
-    val radius: Float
-) : Geometry {}
+    val center: Point<Double>,
+    val radius: Float,
+) : Geometry<Double> {
+
+}
 
 data class Cylinder(
-    val center: Point,
+    val center: Point<Double>,
     val radius: Float,
-    val height: Float
+    val height: Float,
 ) {}
 
 data class Ray(
-    val point: Point,
-    val vector: Vector3
-) : Geometry {}
+    val point: Point<Double>,
+    val vector: Vector3,
+) : Geometry<Double> {
+
+}
+
+//****************** VECTOR ****************************** //
+
+sealed interface Vector<T : Number> {
+    fun magnitude(): T
+
+    fun toArray(): Array<T>
+
+    fun normalize(): Vector<T>
+}
 
 open class Vector3(
-    open val x: Float,
-    open val y: Float,
-    open val z: Float
-) : Geometry {
-    open fun toFloatArray(): FloatArray = FloatArray(3).apply {
+    open val x: Double,
+    open val y: Double,
+    open val z: Double,
+) : Vector<Double> {
+
+    override fun toArray(): Array<Double> = Array<Double>(3) { 0.0 }.apply {
         this[0] = x
         this[1] = y
         this[2] = z
     }
 
+    override fun magnitude(): Double = sqrt(x * x + y * y + z * z)
+
+    override fun normalize(): Vector<Double> = Vector3(
+        x * (1.div(magnitude())) * magnitude(),
+        y * (1.div(magnitude())) * magnitude(),
+        z * (1.div(magnitude())) * magnitude()
+    )
+
     companion object {
-        fun of(x: Float, y: Float, z: Float): Vector3 = Vector3(x, y, z)
+        fun of(x: Double, y: Double, z: Double): Vector3 = Vector3(x, y, z)
     }
 }
 
 data class Vector4(
-    override val x: Float,
-    override val y: Float,
-    override val z: Float,
-    val w: Float,
-) : Vector3(x, y, z) {
-    override fun toFloatArray(): FloatArray = FloatArray(4).apply {
+    val x: Double,
+    val y: Double,
+    val z: Double,
+    val w: Double,
+) : Vector<Double> {
+
+    override fun toArray(): Array<Double> = Array<Double>(4) { 0.0 }.apply {
         this[0] = x
         this[1] = y
         this[2] = z
         this[3] = w
     }
 
+    override fun magnitude(): Double = sqrt(x * x + y * y + z * z + w * w)
+
+    override fun normalize(): Vector<Double> = Vector4(
+        x * (1.div(magnitude())) * magnitude(),
+        y * (1.div(magnitude())) * magnitude(),
+        z * (1.div(magnitude())) * magnitude(),
+        w * (1.div(magnitude())) * magnitude(),
+    )
+
     companion object {
-        fun of(x: Float, y: Float, z: Float, w: Float): Vector3 = Vector4(x, y, z, w)
+        fun ofFloat(x: Float, y: Float, z: Float, w: Float): Vector4 =
+            Vector4(x.toDouble(), y.toDouble(), z.toDouble(), w.toDouble())
+
+        fun ofDouble(x: Double, y: Double, z: Double, w: Double): Vector4 = Vector4(x, y, z, w)
     }
 }
 
@@ -108,10 +168,13 @@ data class Vector4(
  *
  * Also there is already an existing shot at github at this topic.
  * https://github.com/yinpeng/kotlin-matrix
+ * and
+ * https://github.com/Kotlin/multik <-- preferred
  *
  * But not only do we need matrix we also different vector types :
  * Vector3
- *  - magnitude
+ *  - magnitude -> the length of the vector
+ *
  *  - normalize
  *
  * Vector4
@@ -138,7 +201,7 @@ interface Matrix<T> {
     companion object {
         fun <T> asMatrix(
             shape: Pair<Int, Int>,
-            data: Array<T>
+            data: Array<T>,
         ): Matrix<T> {
             return ImmutableMatrix(shape, data)
         }
@@ -148,7 +211,6 @@ interface Matrix<T> {
             return ImmutableMatrix(shape, array)
         }
     }
-
 }
 
 /**
@@ -158,7 +220,7 @@ interface Matrix<T> {
  */
 abstract class AbstractMatrix<T>(
     private val shape: Pair<Int, Int>,
-    private val data: Array<T>
+    private val data: Array<T>,
 ) : Matrix<T> {
 
     protected var internalDataStructure: Array<List<T>> = emptyArray()
@@ -173,11 +235,8 @@ abstract class AbstractMatrix<T>(
         require(shape.first * shape.second == data.size) { "first * second == data.size is not true: first: ${shape.first} * ${shape.second} == ${data.size}" }
         require(data.size % shape.second == 0) { "data size : ${data.size} must be divisable by shape column size : ${shape.second} and result in ${shape.first} but was ${data.size % shape.second}" }
 
-//        val slices:Array<List<T>> = Array(shape.first) { Array<T>(shape.second) { 0.0 as T } }
-
         val slices: Array<List<T>> = Array(shape.first) { List<T>(shape.second) { 0.0 as T } }
         (0 until shape.first).forEach {
-//            validateInput(data, shape)
             val steps = data.size / shape.first
             val from = steps * it
             val until = (from + steps) - 1
@@ -221,8 +280,8 @@ abstract class AbstractMatrix<T>(
         other as AbstractMatrix<*>
 
         if (shape != other.shape) return false
-//        if (!data.contentEquals(other.data)) return false
-//        if (!internalDataStructure.contentEquals(other.internalDataStructure)) return false
+        if (!data.contentEquals(other.data)) return false
+        if (!internalDataStructure.contentEquals(other.internalDataStructure)) return false
 
         return true
     }
@@ -237,24 +296,141 @@ abstract class AbstractMatrix<T>(
 
 class ImmutableMatrix<T>(
     private val shape: Pair<Int, Int>,
-    private val data: Array<T>
+    private val data: Array<T>,
 ) : AbstractMatrix<T>(shape, data) {
     override fun set(x: Int, y: Int, value: T): Matrix<T> = error("Please use a Mutable Matrix to set values.")
 }
 
 class MutableMatrix<T>(
     private val shape: Pair<Int, Int>,
-    data: Array<T>
+    data: Array<T>,
 ) : AbstractMatrix<T>(shape, data) {
 
     override fun set(row: Int, col: Int, value: T): Matrix<T> {
         (this.internalDataStructure[row] as MutableList)[col] = value
         return Matrix.asMatrix(shape, asRawArray())
     }
-
 }
 
-//****************** VECTORS ****************************** //
+// ****************** FUNKTION COMPOSITION ****************************** //
+
+val plus3 = { x: Int -> x.times(x) }
+
+val creator =
+    { fa: FloatArray, shape: Pair<Int, Int> -> Matrix.asMatrix(Pair(shape.first, shape.second), fa.toTypedArray()) }
+
+fun <T> transform(matrix: Matrix<Float>, fn: (m: Matrix<Float>) -> Matrix<Float>) = fn(matrix)
+
+val command = { vector: FloatArray, ma: Matrix<Float>, fn: (vector: FloatArray, ma: Matrix<Float>) -> Matrix<Float> ->
+    fn(
+        vector,
+        ma
+    )
+}
+
+/**
+ * in this function a regular column vector is multiplied with a homogenous! matrix.
+ * shape of the vector is checked in this function.
+ *
+ * cv = {2.0f, 3.0f, 1.0f, 1.0f}
+ *
+ * ma = {
+ *  1.0f, 0.0f, 0.0f, 0.0f,
+ *  0.0f, 1.0f, 0.0f, 0.0f,
+ *  0.0f, 0.0f, 1.0f, 0.0f,
+ *  0.0f, 0.0f, 0.0f, 1.0f,
+ * }
+ * ma is a simple identity matrix.
+ *
+ */
+//val multiplyCommand = { columnVector:FloatArray, ma:Matrix<Float> -> Matrix.asMatrix() }
+
+/**
+ * Vector math:
+ * we need some basic vector functions that work on two vectors.
+ * starting with vector skalar multiplication:
+ */
+val multiplySkalarWithColumnVector4 = { skalar: Float, columnVector: Vector4 ->
+    Vector4(
+        columnVector.x.times(skalar),
+        columnVector.y.times(skalar),
+        columnVector.z.times(skalar),
+        columnVector.w.times(skalar),
+    )
+}
+
+val multiplySkalarWithColumnVector3 = { skalar: Float, columnVector: Vector3 ->
+    Vector3(
+        columnVector.x.times(skalar),
+        columnVector.y.times(skalar),
+        columnVector.z.times(skalar)
+    )
+}
+
+val divideColumnVector4BySkalar = { skalar: Float, columnVector: Vector4 ->
+    Vector4(
+        columnVector.x.times(skalar),
+        columnVector.y.times(skalar),
+        columnVector.z.times(skalar),
+        columnVector.w.times(skalar),
+    )
+}
+
+val divideColumnVector3BySkalar = { skalar: Float, columnVector: Vector3 ->
+    Vector3(
+        columnVector.x.div(skalar),
+        columnVector.y.div(skalar),
+        columnVector.z.div(skalar),
+    )
+}
+
+/**
+ * addition and subtraction of 2 vectors
+ */
+val addVector = { va: Vector3, vb: Vector3 ->
+    Vector3.of(
+        va.x + vb.x,
+        va.y + vb.y,
+        va.z + vb.z,
+    )
+}
+
+
+val subtractVector = { va: Vector3, vb: Vector3 ->
+    Vector3.of(
+        va.x - vb.x,
+        va.y - vb.y,
+        va.z - vb.z,
+    )
+}
+
+/**
+ * dot- aka skalar-product of two vectors
+ * returns a float skalar
+ *
+ * Note:
+ * skalar product of two orthogonal, linear independent vectors is zero
+ * skalar product of two parallel vectors equals the product of its length or value
+ * skalar product of two non-parallel vectors equals the negative product of its length or value
+ *
+ * Note: calculating the skalar product, the angle between the two vectors should be considered as follows
+ * angle of 0° -> 1
+ * angle of 90° -> 0
+ * angle of 180° -> -1
+ *
+ */
+val dotProduct = { va: Vector3, vb: Vector3 -> va.x * vb.x + va.y * vb.y + va.z * vb.z }
+
+/**
+ *
+ */
+val magnitude = { va: Vector3 -> va.x * va.x + va.y * va.y + va.z * va.z }
+
+
+private fun log(msg: String) {
+    println(msg)
+}
+
 
 
 

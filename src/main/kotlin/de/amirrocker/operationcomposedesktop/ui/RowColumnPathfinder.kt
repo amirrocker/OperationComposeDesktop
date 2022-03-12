@@ -6,8 +6,8 @@ class RowColumnPathfinder(
     private val game:Game
 ) {
 
-    private val pathCol = emptyList<Int>().toMutableList()
-    private val pathRow = emptyList<Int>().toMutableList()
+    internal val pathCol = emptyList<Int>().toMutableList()
+    internal val pathRow = emptyList<Int>().toMutableList()
 
     fun getResult() = MapCoordinates(pathCol, pathRow)
 
@@ -93,16 +93,6 @@ class RowColumnPathfinder(
             }
 
         }
-
-
-
-//        (0..numTiles).forEach { index ->
-//
-//        }
-
-
         return this
     }
-
-
 }

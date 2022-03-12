@@ -13,15 +13,16 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+//import de.amirrocker.operationcomposedesktop.domain.pattern
 
 @Composable
-fun InfantryPiece(index:Int, mapPieceData: MapPieceData) {
+fun InfantryPiece(index:Int, infantryPieceData: InfantryPieceData) {
 
     val boxSize = 40.dp
 
     Box( Modifier
 //        .offset(boxSize * index, mapPieceData.position.value.dp)
-        .offset(mapPieceData.xPosition.value.dp, mapPieceData.yPosition.value.dp )
+        .offset(infantryPieceData.xPosition.value.dp, infantryPieceData.yPosition.value.dp )
         .shadow(30.dp)
         .clip(RectangleShape)
     ) {
@@ -30,7 +31,7 @@ fun InfantryPiece(index:Int, mapPieceData: MapPieceData) {
                 .size(boxSize, boxSize)
                 .background(Color.Blue)
                 .clickable {
-                    mapPieceData.click()
+                    infantryPieceData.click()
                 }
         )
     }
@@ -48,7 +49,14 @@ data class InfantryPieceData(val game:Game, val velocity:Float, val name:String,
 
     fun update(dt:Long) {
 //        val delta = (dt / 1E8 * velocity).toFloat()
-        xPosition.value = xPosition.value
+//        xPosition.value = xPosition.value
+
+        // temp position handling with control data a first sketch
+//        pattern.forEach {
+//            this.xPosition.value += it.moveForward.move().times(mapSquareSize).toInt()
+//            this.yPosition.value = it.moveForward.move()
+//        }
+        
     }
 
     fun click() {
