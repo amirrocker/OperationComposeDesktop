@@ -92,44 +92,86 @@ data class Ray(
 
 //****************** VECTOR ****************************** //
 
-sealed interface Vector<T : Number> {
+interface Vector<T : Number> {
+    val x:T
+    val y:T
+    val z:T
+    val w:T
+
     fun magnitude(): T
-
     fun toArray(): Array<T>
-
     fun normalize(): Vector<T>
+
+    // simple scalar division and multiplication
+    operator fun div(b:T): Vector<T>
+    operator fun times(b:T): Vector<T>
+
+    operator fun plus(vb:Vector<T>):Vector<T>
+    operator fun minus(vb:Vector<T>):Vector<T>
+
+
 }
 
-open class Vector3(
-    open val x: Double,
-    open val y: Double,
-    open val z: Double,
+
+
+data class Vector3(
+    override val x: Double,
+    override val y: Double,
+    override val z: Double,
+    override val w: Double = 0.0, // in a 3D vector w is always 0
 ) : Vector<Double> {
 
-    override fun toArray(): Array<Double> = Array<Double>(3) { 0.0 }.apply {
+    override fun plus(vb: Vector<Double>):Vector<Double> = Vector3(
+        x + vb.x,
+        y + vb.y,
+        z + vb.z,
+    )
+
+    override fun minus(vb: Vector<Double>):Vector<Double> = Vector3(
+        x - vb.x,
+        y - vb.y,
+        z - vb.z,
+    )
+
+    override fun toArray(): Array<Double> = Array(3) { 0.0 }.apply {
         this[0] = x
         this[1] = y
         this[2] = z
     }
 
+    override fun div(b: Double): Vector<Double> = Vector3(
+        x = x / b,
+        y = y / b,
+        z = z / b,
+    )
+
+    override fun times(b: Double): Vector<Double> = Vector3(
+        x = x * b,
+        y = y * b,
+        z = z * b,
+    )
+
     override fun magnitude(): Double = sqrt(x * x + y * y + z * z)
 
-    override fun normalize(): Vector<Double> = Vector3(
-        x * (1.div(magnitude())) * magnitude(),
-        y * (1.div(magnitude())) * magnitude(),
-        z * (1.div(magnitude())) * magnitude()
+    override fun normalize(): Vector3 = Vector3(
+        x * 1.div(magnitude()),
+        y * 1.div(magnitude()),
+        z * 1.div(magnitude())
     )
 
     companion object {
-        fun of(x: Double, y: Double, z: Double): Vector3 = Vector3(x, y, z)
+        fun ofFloat(x: Float, y: Float, z: Float): Vector3 =
+            Vector3(x.toDouble(), y.toDouble(), z.toDouble())
+
+        fun ofDouble(x: Double, y: Double, z: Double): Vector3 = Vector3(x, y, z)
     }
 }
 
 data class Vector4(
-    val x: Double,
-    val y: Double,
-    val z: Double,
-    val w: Double,
+    override val x: Double,
+    override val y: Double,
+    override val z: Double,
+    override val w: Double,
 ) : Vector<Double> {
 
     override fun toArray(): Array<Double> = Array<Double>(4) { 0.0 }.apply {
@@ -148,13 +190,49 @@ data class Vector4(
         w * (1.div(magnitude())) * magnitude(),
     )
 
+
+    override fun plus(vb: Vector<Double>):Vector<Double> = Vector4(
+        x + vb.x,
+        y + vb.y,
+        z + vb.z,
+        w + vb.w,
+    )
+
+    override fun minus(vb: Vector<Double>):Vector<Double> = Vector4(
+        x - vb.x,
+        y - vb.y,
+        z - vb.z,
+        w - vb.w,
+    )
+
+    override fun div(b: Double): Vector<Double> = Vector4(
+        x = x / b,
+        y = y / b,
+        z = z / b,
+        w = w / b,
+    )
+
+    override fun times(b: Double): Vector<Double> = Vector4(
+        x = x * b,
+        y = y * b,
+        z = z * b,
+        w = w * b,
+    )
+
     companion object {
         fun ofFloat(x: Float, y: Float, z: Float, w: Float): Vector4 =
             Vector4(x.toDouble(), y.toDouble(), z.toDouble(), w.toDouble())
 
         fun ofDouble(x: Double, y: Double, z: Double, w: Double): Vector4 = Vector4(x, y, z, w)
     }
+
+
 }
+
+// simple factory methods
+fun <T:Number> asVector3(x:T, y:T, z:T):Vector3 = Vector3(x.toDouble(),y.toDouble(),z.toDouble())
+
+fun <T:Number> asVector3(x:T, y:T, z:T, block:(T,T,T)->Vector3):Vector3 = block(x,y,z)
 
 
 //****************** MATRIX ****************************** //

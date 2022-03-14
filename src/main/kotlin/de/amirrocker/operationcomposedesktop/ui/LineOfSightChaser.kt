@@ -4,9 +4,9 @@ import de.amirrocker.operationcomposedesktop.domain.OrientationSoldier
 import de.amirrocker.operationcomposedesktop.domain.Soldier
 
 
-data class Vector1D<out T:Number>(val x:T) {}
-data class Vector2D<out T:Number>(val x:T,val y:T) {}
-data class VRotate2D(val orientation: Float, val position: Vector2D<Float>)
+//data class Vector1D<out T:Number>(val x:T) {}
+//data class Vector2D<out T:Number>(val x:T,val y:T) {}
+//data class VRotate2D(val orientation: Float, val position: Vector2D<Float>)
 
 
 /**
@@ -17,8 +17,8 @@ class LineOfSightChaser(
     val predator: OrientationSoldier
 ) {
 
-    var u:Vector1D<Float> = Vector1D(0.0f)
-    var v:Vector1D<Float> = Vector1D(0.0f)
+//    var u:Vector1D<Float> = Vector1D(0.0f)
+//    var v:Vector1D<Float> = Vector1D(0.0f)
 
     var left = false
     var right = false
