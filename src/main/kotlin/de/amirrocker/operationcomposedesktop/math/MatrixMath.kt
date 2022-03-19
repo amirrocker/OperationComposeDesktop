@@ -3,115 +3,29 @@ package de.amirrocker.operationcomposedesktop.math
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
-
-
-//****************** GEOMETRY ****************************** //
-
-sealed interface Geometry<T : Number> {
-
-    companion object {
-        // find the vector between these two points
-        fun vectorBetween(from: Point<Double>, to: Point<Double>) =
-            Vector3(
-                to.x - from.x,
-                to.y - from.y,
-                to.z - from.z
-            )
-    }
-}
-
-
-data class Point<T : Number>(
-    val x: T,
-    val y: T,
-    val z: T,
-) : Geometry<T> {
-
-    // simple movement along single axis
-    // check for diff. impl. of T
-    // when(x) is Float -> do this, else do that....
-    fun translateY(dy: T) = Point(x, y.toDouble().plus(dy.toDouble()), z)
-    fun translateX(dx: T) = Point(x.toDouble().plus(dx.toDouble()), y, z)
-    fun translateZ(dz: T) = Point(x, y, z.toDouble().plus(dz.toDouble()))
-
-    // rotation around single axis
-    // cos(x) - sin(x)
-    // sin(x) + cos(x)
-
-    // rotate a point on the x-y plane
-    fun rotate2D(angle: Float) =
-        Matrix.asMatrix(Pair(2, 2),
-            arrayOf(cos(x.toDouble()), -sin(y.toDouble()), sin(x.toDouble()), cos(y.toDouble())))
-
-    fun rotate2DAroundPlane(angle: Float, plane: Plane = Plane.X_Y_PLANE) =
-        when (plane) {
-            Plane.X_Y_PLANE -> Matrix.asMatrix(Pair(2, 2),
-                arrayOf(cos(x.toDouble()), -sin(y.toDouble()), sin(x.toDouble()), cos(y.toDouble())))
-            Plane.Z_Y_PLANE -> Matrix.asMatrix(Pair(2, 2),
-                arrayOf(cos(z.toDouble()), -sin(y.toDouble()), sin(z.toDouble()), cos(y.toDouble())))
-            Plane.Z_X_PLANE -> Matrix.asMatrix(Pair(2, 2),
-                arrayOf(cos(z.toDouble()), -sin(x.toDouble()), sin(z.toDouble()), cos(x.toDouble())))
-        }
-
-    fun rotate3D(angle: Float): Nothing = TODO("Need impl.")
-
-}
-
-enum class Plane {
-    X_Y_PLANE,
-    Z_Y_PLANE,
-    Z_X_PLANE,
-}
-
-data class Circle(
-    val center: Point<Double>,
-    val radius: Float,
-) {
-    fun scale(scale: Float) = Circle(center, scale.times(radius))
-}
-
-data class Sphere(
-    val center: Point<Double>,
-    val radius: Float,
-) : Geometry<Double> {
-
-}
-
-data class Cylinder(
-    val center: Point<Double>,
-    val radius: Float,
-    val height: Float,
-) {}
-
-data class Ray(
-    val point: Point<Double>,
-    val vector: Vector3,
-) : Geometry<Double> {
-
-}
+import kotlin.random.Random
 
 //****************** VECTOR ****************************** //
 
 interface Vector<T : Number> {
-    val x:T
-    val y:T
-    val z:T
-    val w:T
+    val x: T
+    val y: T
+    val z: T
+    val w: T
 
     fun magnitude(): T
     fun toArray(): Array<T>
     fun normalize(): Vector<T>
 
     // simple scalar division and multiplication
-    operator fun div(b:T): Vector<T>
-    operator fun times(b:T): Vector<T>
+    operator fun div(b: T): Vector<T>
+    operator fun times(b: T): Vector<T>
 
-    operator fun plus(vb:Vector<T>):Vector<T>
-    operator fun minus(vb:Vector<T>):Vector<T>
+    operator fun plus(vb: Vector<T>): Vector<T>
+    operator fun minus(vb: Vector<T>): Vector<T>
 
 
 }
-
 
 
 data class Vector3(
@@ -121,13 +35,13 @@ data class Vector3(
     override val w: Double = 0.0, // in a 3D vector w is always 0
 ) : Vector<Double> {
 
-    override fun plus(vb: Vector<Double>):Vector<Double> = Vector3(
+    override fun plus(vb: Vector<Double>): Vector<Double> = Vector3(
         x + vb.x,
         y + vb.y,
         z + vb.z,
     )
 
-    override fun minus(vb: Vector<Double>):Vector<Double> = Vector3(
+    override fun minus(vb: Vector<Double>): Vector<Double> = Vector3(
         x - vb.x,
         y - vb.y,
         z - vb.z,
@@ -191,14 +105,14 @@ data class Vector4(
     )
 
 
-    override fun plus(vb: Vector<Double>):Vector<Double> = Vector4(
+    override fun plus(vb: Vector<Double>): Vector<Double> = Vector4(
         x + vb.x,
         y + vb.y,
         z + vb.z,
         w + vb.w,
     )
 
-    override fun minus(vb: Vector<Double>):Vector<Double> = Vector4(
+    override fun minus(vb: Vector<Double>): Vector<Double> = Vector4(
         x - vb.x,
         y - vb.y,
         z - vb.z,
@@ -230,9 +144,9 @@ data class Vector4(
 }
 
 // simple factory methods
-fun <T:Number> asVector3(x:T, y:T, z:T):Vector3 = Vector3(x.toDouble(),y.toDouble(),z.toDouble())
+fun <T : Number> asVector3(x: T, y: T, z: T): Vector3 = Vector3(x.toDouble(), y.toDouble(), z.toDouble())
 
-fun <T:Number> asVector3(x:T, y:T, z:T, block:(T,T,T)->Vector3):Vector3 = block(x,y,z)
+fun <T : Number> asVector3(x: T, y: T, z: T, block: (T, T, T) -> Vector3): Vector3 = block(x, y, z)
 
 
 //****************** MATRIX ****************************** //
@@ -286,6 +200,16 @@ interface Matrix<T> {
 
         inline fun <reified T> zeros(shape: Pair<Int, Int>): Matrix<T> {
             val array = Array(shape.first * shape.second) { 0.0 as T }
+            return ImmutableMatrix(shape, array)
+        }
+
+        inline fun <reified T> ones(shape: Pair<Int, Int>): Matrix<T> {
+            val array = Array(shape.first * shape.second) { 1.0 as T }
+            return ImmutableMatrix(shape, array)
+        }
+
+        inline fun <reified T> random(shape: Pair<Int, Int>): Matrix<T> {
+            val array = Array(shape.first * shape.second) { Random.nextDouble(0.0, 1.0) as T }
             return ImmutableMatrix(shape, array)
         }
     }
@@ -466,7 +390,7 @@ val divideColumnVector3BySkalar = { skalar: Float, columnVector: Vector3 ->
  * addition and subtraction of 2 vectors
  */
 val addVector = { va: Vector3, vb: Vector3 ->
-    Vector3.of(
+    Vector3.ofDouble(
         va.x + vb.x,
         va.y + vb.y,
         va.z + vb.z,
@@ -475,7 +399,7 @@ val addVector = { va: Vector3, vb: Vector3 ->
 
 
 val subtractVector = { va: Vector3, vb: Vector3 ->
-    Vector3.of(
+    Vector3.ofDouble(
         va.x - vb.x,
         va.y - vb.y,
         va.z - vb.z,
