@@ -1,7 +1,5 @@
 package de.amirrocker.operationcomposedesktop.math
 
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 
@@ -174,7 +172,16 @@ fun <T : Number> asVector3(x: T, y: T, z: T, block: (T, T, T) -> Vector3): Vecto
  *
  */
 
-interface Matrix<T> {
+enum class MatrixElement {
+    ROW,
+    COLUMN
+}
+
+interface Matrix<T : Number> {
+
+    val rows: Int
+
+    val columns: Int
 
     fun transpose(): Matrix<T>
 
@@ -186,32 +193,60 @@ interface Matrix<T> {
 
     operator fun get(shape: Pair<Int, Int>): Matrix<T>
 
-    operator fun get(x: Int, y: Int): T
+    operator fun get(row: Int, col: Int): T
 
-    operator fun set(x: Int, y: Int, value: T): Matrix<T>
+    operator fun get(index: Int, element: MatrixElement = MatrixElement.ROW): List<T>
+
+    operator fun set(row: Int, col: Int, value: T): Matrix<T>
+
+    operator fun times(a: Double): Matrix<Double>
+
+    operator fun times(a: Float): Matrix<Float>
+
+    operator fun times(mb: Matrix<T>): Matrix<Double>
 
     companion object {
-        fun <T> asMatrix(
+        fun <T : Number> asMatrix(
             shape: Pair<Int, Int>,
             data: Array<T>,
         ): Matrix<T> {
             return ImmutableMatrix(shape, data)
         }
 
-        inline fun <reified T> zeros(shape: Pair<Int, Int>): Matrix<T> {
-            val array = Array(shape.first * shape.second) { 0.0 as T }
-            return ImmutableMatrix(shape, array)
+        fun <T : Number> asMutableMatrix(
+            shape: Pair<Int, Int>,
+            data: Array<T>,
+        ): Matrix<T> {
+            return MutableMatrix(shape, data)
         }
 
-        inline fun <reified T> ones(shape: Pair<Int, Int>): Matrix<T> {
-            val array = Array(shape.first * shape.second) { 1.0 as T }
-            return ImmutableMatrix(shape, array)
-        }
+        fun zeros(shape: Pair<Int, Int>, makeMutable: Boolean = false): Matrix<Double> =
+            if (!makeMutable) {
+                val array = Array(shape.first * shape.second) { 0.0 }
+                ImmutableMatrix(shape, array)
+            } else {
+                val array = Array(shape.first * shape.second) { 0.0 }
+                MutableMatrix(shape, array)
+            }
 
-        inline fun <reified T> random(shape: Pair<Int, Int>): Matrix<T> {
-            val array = Array(shape.first * shape.second) { Random.nextDouble(0.0, 1.0) as T }
-            return ImmutableMatrix(shape, array)
-        }
+
+        fun ones(shape: Pair<Int, Int>, makeMutable: Boolean = false): Matrix<Double> =
+            if (!makeMutable) {
+                val array = Array(shape.first * shape.second) { 1.0 }
+                ImmutableMatrix(shape, array)
+            } else {
+                val array = Array(shape.first * shape.second) { 1.0 }
+                MutableMatrix(shape, array)
+            }
+
+        fun random(shape: Pair<Int, Int>, makeMutable: Boolean = false): Matrix<Double> =
+            if (!makeMutable) {
+                val array = Array(shape.first * shape.second) { Random.nextDouble() }
+                ImmutableMatrix(shape, array)
+            } else {
+                val array = Array(shape.first * shape.second) { Random.nextDouble() }
+                MutableMatrix(shape, array)
+            }
     }
 }
 
@@ -220,9 +255,9 @@ interface Matrix<T> {
  * shape.first = Rows
  * shape.second = Cols
  */
-abstract class AbstractMatrix<T>(
-    private val shape: Pair<Int, Int>,
-    private val data: Array<T>,
+abstract class AbstractMatrix<T : Number>(
+    val shape: Pair<Int, Int>,
+    val data: Array<T>,
 ) : Matrix<T> {
 
     protected var internalDataStructure: Array<List<T>> = emptyArray()
@@ -250,12 +285,26 @@ abstract class AbstractMatrix<T>(
         return slices
     }
 
-    override fun get(rows: Int, cols: Int): T {
-        return internalDataStructure[rows][cols]
+    override fun get(row: Int, col: Int): T {
+        return internalDataStructure[row][col]
     }
 
     // TODO this needs some more thought!
     override fun get(shape: Pair<Int, Int>): AbstractMatrix<T> = this
+
+    override fun get(index: Int, element: MatrixElement): List<T> = when (element) {
+        MatrixElement.ROW -> {
+            this.asShapedData()[index]
+        }
+        MatrixElement.COLUMN -> {
+            val result = this.internalDataStructure.mapIndexed { listIndex, listItem ->
+//                println("listIndex: $listIndex with list: $listItem at column: ${listItem[index]}")
+                listItem[index]
+            }
+            result
+        }
+    }
+
 
     override fun asShapedData(): Array<List<T>> = this.internalDataStructure
 
@@ -273,38 +322,65 @@ abstract class AbstractMatrix<T>(
         return copy
     }
 
-    abstract override fun set(x: Int, y: Int, value: T): Matrix<T>
+    abstract override fun set(row: Int, col: Int, value: T): Matrix<T>
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as AbstractMatrix<*>
-
-        if (shape != other.shape) return false
-        if (!data.contentEquals(other.data)) return false
-        if (!internalDataStructure.contentEquals(other.internalDataStructure)) return false
-
-        return true
+    inline fun <reified T : Number> zeros(shape: Pair<Int, Int>): Matrix<T> {
+        val array = Array(shape.first * shape.second) { 0.0 as T }
+        return ImmutableMatrix(shape, array)
     }
 
-    override fun hashCode(): Int {
-        var result = shape.hashCode()
-        result = 31 * result + data.contentHashCode()
-        result = 31 * result + internalDataStructure.contentHashCode()
-        return result
+    inline fun <reified T : Number> ones(shape: Pair<Int, Int>): Matrix<T> {
+        val array: Array<T> = Array(shape.first * shape.second) {
+            1.0 as T
+        }
+        return ImmutableMatrix(shape, array)
     }
+
+    inline fun <reified T : Number> random(shape: Pair<Int, Int>): Matrix<T> {
+        val array = Array(shape.first * shape.second) { Random.nextDouble(0.0, 1.0) as T }
+        return ImmutableMatrix(shape, array)
+    }
+
 }
 
-class ImmutableMatrix<T>(
-    private val shape: Pair<Int, Int>,
-    private val data: Array<T>,
+class ImmutableMatrix<T : Number>(
+    shape: Pair<Int, Int>,
+    data: Array<T>,
 ) : AbstractMatrix<T>(shape, data) {
-    override fun set(x: Int, y: Int, value: T): Matrix<T> = error("Please use a Mutable Matrix to set values.")
+    override fun set(row: Int, col: Int, value: T): Matrix<T> = error("Please use a Mutable Matrix to set values.")
+
+    override fun times(a: Double): Matrix<Double> = error("Please use a Mutable Matrix to set values.")
+
+    override fun times(a: Float): Matrix<Float> = error("Please use a Mutable Matrix to set values.")
+
+    override fun times(mb: Matrix<T>): Matrix<Double> = error("Please use a Mutable Matrix to set values.")
+
+//    inline fun <reified T : Number> zeros(shape: Pair<Int, Int>): Matrix<T> {
+//        val array = Array(shape.first * shape.second) { 0.0 as T }
+//        return ImmutableMatrix(shape, array)
+//    }
+//
+//    inline fun <reified T : Number> ones(shape: Pair<Int, Int>): Matrix<T> {
+//        val array: Array<T> = Array(shape.first * shape.second) {
+//            1.0 as T
+//        }
+//        return ImmutableMatrix(shape, array)
+//    }
+//
+//    inline fun <reified T : Number> random(shape: Pair<Int, Int>): Matrix<T> {
+//        val array = Array(shape.first * shape.second) { Random.nextDouble(0.0, 1.0) as T }
+//        return ImmutableMatrix(shape, array)
+//    }
+
+    override val rows: Int
+        get() = shape.first
+
+    override val columns: Int
+        get() = shape.second
 }
 
-class MutableMatrix<T>(
-    private val shape: Pair<Int, Int>,
+class MutableMatrix<T : Number>(
+    shape: Pair<Int, Int>,
     data: Array<T>,
 ) : AbstractMatrix<T>(shape, data) {
 
@@ -312,7 +388,52 @@ class MutableMatrix<T>(
         (this.internalDataStructure[row] as MutableList)[col] = value
         return Matrix.asMatrix(shape, asRawArray())
     }
+
+    override fun times(a: Double): Matrix<Double> =
+        Matrix.asMatrix(
+            shape,
+            data.map { d: T -> a.times(d.toDouble()) }.toTypedArray()
+        )
+
+    override fun times(a: Float): Matrix<Float> =
+        Matrix.asMatrix(
+            shape,
+            data.map { d: T -> a.times(d.toFloat()) }.toTypedArray()
+        )
+
+    fun validateAndReturn(init: Matrix<T>.()->Matrix<Double>) = init()
+
+    // TODO clean up the chaotic use of T / Double - I need to read up on type erasure, variance and covariance again!
+    @Throws(IllegalArgumentException::class)
+    override fun times(mb: Matrix<T>): Matrix<Double> =
+        validateAndReturn {
+            if(mb.rows != this.columns) {
+                throw IllegalArgumentException("ma columns must match mb rows to be able to calculate a valid dot product.")
+            }
+            Matrix.asMutableMatrix(
+                Pair(this.rows, mb.columns),
+                internalDotProduct(mb).toTypedArray()
+            )
+        }
+
+    override val rows: Int
+        get() = shape.first
+
+    override val columns: Int
+        get() = shape.second
+
+    private fun internalDotProduct(mb: Matrix<T>): List<Double> =
+        (0 until this.rows).map { r ->
+            val ma_row = this.get(index = r, MatrixElement.ROW)
+            (0 until mb.columns).map { c ->
+                val mb_col = mb.get(index = c, MatrixElement.COLUMN)
+                ma_row.zip(mb_col) { t, r ->
+                    t.toDouble() * r.toDouble()
+                }.sum()
+            }
+        }.flatten()
 }
+
 
 // ****************** FUNKTION COMPOSITION ****************************** //
 
