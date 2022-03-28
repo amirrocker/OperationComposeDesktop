@@ -1,18 +1,11 @@
-package de.amirrocker.operationcomposedesktop.ui
+package de.amirrocker.operationcomposedesktop.math
 
-import de.amirrocker.operationcomposedesktop.coroutine.concurrentSum
-import de.amirrocker.operationcomposedesktop.math.AbstractMatrix
-import de.amirrocker.operationcomposedesktop.math.Matrix
-import de.amirrocker.operationcomposedesktop.math.MatrixElement
-import de.amirrocker.operationcomposedesktop.math.Vector3
-import de.amirrocker.operationcomposedesktop.math.asVector3
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class TestMath {
+class MatrixMathTest {
 
     val data_1x4_valid = arrayOf(0.0, 1.0, 2.0, 3.0)
     val data_1x4_invalid = arrayOf(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
@@ -37,29 +30,26 @@ class TestMath {
 
     @Test
     internal fun `test matrix_1x4 creation`() {
-        println("test matrix creation ....")
-
+        // when
         val matrix = Matrix.asMatrix(shape = shape_1x4, data_1x4_valid)
 
+        // then
         assertTrue(matrix.asShapedData().size == 1, "Expect a 1D array with 1 item ")
         assertTrue(matrix.asShapedData()[0].size == 4, "Expect a 1D array with 4 column items ")
-
     }
 
     @Test
     internal fun `test matrix_2x2 creation`() {
-        println("test squared matrix 2x2 creation ....")
-
+        // when
         val matrix = Matrix.asMatrix(shape = shape_2x2, data_2x2_valid)
 
+        // then
         assertTrue(matrix.asShapedData().size == 2, "Expect a 2D array with 2 items ")
         assertTrue(matrix.asShapedData()[0].size == 2, "Expect a 2D array with 2 column items ")
-
     }
 
     @Test
-    internal fun `test matrix_2x2 creation invalid inputs`() {
-        println("test squared matrix 2x2 creation ....")
+    internal fun `given matrix creation when invalid data count then throw exception`() {
         assertThrows<IllegalArgumentException> {
             Matrix.asMatrix(shape = shape_2x2, data_2x2_invalid)
         }
@@ -372,45 +362,4 @@ class TestMath {
 //
 //        return hiddenVector
 //    }
-
-
-    // TODO Vector Test - separate these tests
-    @Test
-    internal fun `given a vector when normalized then expext a unit vector with correct direction`() {
-        val vector: Vector3 = asVector3(4.0, 6.0, 3.0)
-//      optional factory method
-//        val vector2 = asVector3(4.0, 6.0, 3.0) { x, y, z ->
-//            Vector3(x, y, z)
-//        }
-        // sqrt(4*4 + 6*6 + 3*3) = 7,810249675906654
-        val result: Vector3 = vector.normalize()
-        assertEquals(0.5121475197315839, result.x, "Expect 0.5121475197315839 but was ${result.x}")
-        assertEquals(0.7682212795973759, result.y, "Expect 0.7682212795973759 but was ${result.y}")
-        assertEquals(0.3841106397986879, result.z, "Expect 0.3841106397986879 but was ${result.z}")
-    }
-
-    @Test
-    internal fun `given a vector when magnitude then expect a floating point result`() {
-        // given
-        val vector: Vector3 = asVector3(4.0, 6.0, 3.0)
-//      optional factory method
-//        val vector2 = asVector3(4.0, 6.0, 3.0) { x, y, z ->
-//            Vector3(x, y, z)
-//        }
-
-        // sqrt(4*4 + 6*6 + 3*3) = 7,810249675906654
-        // when
-        val result = vector.magnitude()
-
-        // then
-        assertEquals(7.810249675906654, result, "Expect 7,810249675906654 but was $result")
-    }
-
-    // Vector with functions tests - not yet started.
-    @Test
-    internal fun `test calculator method`() {
-//        println(calculator)
-    }
-
-
 }

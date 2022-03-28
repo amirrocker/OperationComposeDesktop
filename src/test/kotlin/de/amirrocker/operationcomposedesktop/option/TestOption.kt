@@ -1,4 +1,4 @@
-package de.amirrocker.operationcomposedesktop.ui
+package de.amirrocker.operationcomposedesktop.option
 
 import de.amirrocker.operationcomposedesktop.option.Option
 import de.amirrocker.operationcomposedesktop.option.map

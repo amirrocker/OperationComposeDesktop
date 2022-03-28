@@ -5,17 +5,6 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.system.measureTimeMillis
 
-/**
- * types in FP are much less defined than classes in OOP. A Type can be any number
- * of inputs to a specific function.
- *
- * a valid Set of Input A ==> Input -> Output ==> a valid Set of Outputs
- *
- * In this case the Type is "a valid Set of Input A" meaning it can be
- * ("a", "b", "c") or all numbers from (-1000 to 1000)
- *
- */
-
 //fun playWithScope() = runBlocking {
 ////    calculate(1)
 ////    calculate(2)

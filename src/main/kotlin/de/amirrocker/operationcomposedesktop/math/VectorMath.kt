@@ -20,8 +20,6 @@ interface Vector<T : Number> {
 
     operator fun plus(vb: Vector<T>): Vector<T>
     operator fun minus(vb: Vector<T>): Vector<T>
-
-
 }
 
 

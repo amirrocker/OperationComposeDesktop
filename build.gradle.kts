@@ -34,12 +34,15 @@ dependencies {
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
+//    implementation("org.jetbrains.kotlinx:kotlinx-html:0.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.4.32")
 
 //    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 
 }
 

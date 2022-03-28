@@ -55,6 +55,9 @@ fun testANumberOfNeurons() {
                                inputs[1] * weight1[0] + inputs[1] * weight1[1] + inputs[1] * weight1[2] + inputs[1] * weight1[3] + biases[1],
                                inputs[2] * weight1[0] + inputs[2] * weight1[1] + inputs[2] * weight1[2] + inputs[2] * weight1[3] + biases[2])
     println("the output of a three neuron layer: $output")
+
+    // TODO we can now reshape this code using type Matrix!
+
 }
 
 

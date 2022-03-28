@@ -1,11 +1,8 @@
-package de.amirrocker.operationcomposedesktop.ui
+package de.amirrocker.operationcomposedesktop.math
 
 import de.amirrocker.operationcomposedesktop.math.Matrix
 import de.amirrocker.operationcomposedesktop.math.MyoNn
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 class TestMyoNn {
 
