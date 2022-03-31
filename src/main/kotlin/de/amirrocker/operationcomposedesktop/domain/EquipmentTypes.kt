@@ -32,6 +32,9 @@ interface Weapon {
 /**
  * The weapon classes
  */
+class NoWeapon : Weapon {
+    override fun causeDamage(): WeaponDamage = throw UnsupportedOperationException("NoWeapon cannot do damage")
+}
 class GrenadeLauncher : Weapon {
     override fun causeDamage(): WeaponDamage = GRENADE_WEAPON_DAMAGE
 }

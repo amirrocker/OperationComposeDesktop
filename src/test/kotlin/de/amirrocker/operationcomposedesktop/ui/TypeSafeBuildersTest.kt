@@ -105,8 +105,6 @@ class TypeSafeBuildersTest {
             }
         }
         println(html)
-
-
     }
 
     @Test

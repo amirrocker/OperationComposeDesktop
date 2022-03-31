@@ -1,7 +1,6 @@
 package de.amirrocker.operationcomposedesktop.ui
 
-import de.amirrocker.operationcomposedesktop.domain.OrientationSoldier
-import de.amirrocker.operationcomposedesktop.domain.Soldier
+import de.amirrocker.operationcomposedesktop.domain.DirectionableSoldier
 
 
 //data class Vector1D<out T:Number>(val x:T) {}
@@ -14,7 +13,7 @@ import de.amirrocker.operationcomposedesktop.domain.Soldier
  * the mapsquares.
  */
 class LineOfSightChaser(
-    val predator: OrientationSoldier
+    val predator: DirectionableSoldier
 ) {
 
 //    var u:Vector1D<Float> = Vector1D(0.0f)

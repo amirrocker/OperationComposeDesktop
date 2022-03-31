@@ -35,7 +35,7 @@ sealed interface ScienceUnit : Unit {
 }
 
 sealed interface SupportUnit : Unit {
-    fun support():SupportGiven
+    fun support(): SupportGiven
 }
 
 /**
@@ -45,16 +45,10 @@ interface Infantry : Unit
 
 interface Vehicle : Unit
 
-
 open class Soldier(
-    private val weapon:Weapon,
-    private val legs:Legs
+    private val weapon: Weapon,
+    private val legs: Legs,
 ) : Infantry {
-
-    // just to make the point....
-    object VALUES {
-        const val SOME_VALUE = 99.0
-    }
 
     override fun attack(longitude: Longitude, latitude: Latitude) {
         // find suitable target
@@ -73,26 +67,27 @@ open class Soldier(
     }
 }
 
-class OrientationSoldier : Soldier(
+
+class DirectionableSoldier : Soldier(
     M4AssaultRifle(),
     AthleticLegs()
-), Orientable {
+), Directionable {
 
     override val orientation: Float
-        get() = if(orientation.isNaN()) {
+        get() = if (orientation.isNaN()) {
             0.0f
         } else {
             orientation
         }
 }
 
-interface Orientable {
-    val orientation : Float  // some angle value ?
+interface Directionable {
+    val orientation: Float  // some angle value ?
 }
 
 // TODO add other gadgets
 class Scientist(
-    val legs: Legs
+    val legs: Legs,
 ) : ScienceUnit, Infantry {
 
     override fun move(longitude: Longitude, latitude: Latitude) {
@@ -115,7 +110,7 @@ class Scientist(
  */
 class APC(
     val weapon: Weapon,
-    val wheels: Wheels = Wheels.DEFAULT_MOTOR
+    val wheels: Wheels = Wheels.DEFAULT_MOTOR,
 ) : Vehicle {
 
     override fun attack(longitude: Longitude, latitude: Latitude) {
@@ -127,11 +122,14 @@ class APC(
         val distanceTraveled = wheels.move()
         println("APC moved: $distanceTraveled m")
     }
+    companion object {
+        val UNDEFINED = APC(NoWeapon())
+    }
 }
 
 class Tank(
     val weapon: Weapon,
-    val wheels: Wheels = Wheels.DEFAULT_MOTOR
+    val wheels: Wheels = Wheels.DEFAULT_MOTOR,
 ) : Vehicle {
     override fun attack(longitude: Longitude, latitude: Latitude) {
         val damagedCaused = weapon.causeDamage()
@@ -141,6 +139,9 @@ class Tank(
     override fun move(longitude: Longitude, latitude: Latitude) {
         val distanceTraveled = wheels.move()
         println("TANK moved: $distanceTraveled m")
+    }
+    companion object {
+        val UNDEFINED = Tank(NoWeapon())
     }
 }
 

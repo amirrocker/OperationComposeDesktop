@@ -3,6 +3,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import de.amirrocker.operationcomposedesktop.domain.initWorld
 import de.amirrocker.operationcomposedesktop.ui.OperationXGame
 
 //@Composable
@@ -25,7 +26,10 @@ fun main() = application {
         title = "Operation X",
         state = WindowState(width = 800.dp, height = 800.dp)
     ) {
-        OperationXGame()
+//        OperationXGame()
+
+        initWorld()
+
     }
 }
 
