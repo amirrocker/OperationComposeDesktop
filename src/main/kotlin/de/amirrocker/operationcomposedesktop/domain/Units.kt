@@ -1,7 +1,8 @@
 package de.amirrocker.operationcomposedesktop.domain
 
-// units
+import de.amirrocker.operationcomposedesktop.domain.Ranks.COLONEL
 
+// units
 typealias Longitude = Long
 typealias Latitude = Long
 
@@ -41,6 +42,46 @@ sealed interface SupportUnit : Unit {
 /**
  * unit types
  */
+interface Rank
+
+interface Ranked : Rank {
+    val rankName:String // Lieutenant Colonel
+    val code : String // LtCol
+    val shortName : String // Lt. Col.
+}
+
+enum class Ranks(
+    override val rankName: String,
+    override val code: String,
+    override val shortName: String,
+) : Ranked {
+    NO_RANK(
+        rankName="none",
+        code="none",
+        shortName="None"
+    ),
+    PRIVATE(
+        rankName="Private First Class",
+        code="pfc",
+        shortName="Private"
+    ),
+    LIEUTENANT(
+        rankName="Lieutenant First Class",
+        code="Lt",
+        shortName="Lieutenant"
+    ),
+    COLONEL(
+        rankName="Lieutenant Colonel",
+        code="Lt. Col",
+        shortName="Lt. Colonel"
+    ),
+    GENERAL(
+        rankName="Lieutenant General",
+        code="Lt. Gen",
+        shortName="Lt. Colonel"
+    )
+}
+
 interface Infantry : Unit
 
 interface Vehicle : Unit
@@ -48,7 +89,9 @@ interface Vehicle : Unit
 open class Soldier(
     private val weapon: Weapon,
     private val legs: Legs,
+    private val rank: Rank,
 ) : Infantry {
+
 
     override fun attack(longitude: Longitude, latitude: Latitude) {
         // find suitable target
@@ -65,12 +108,22 @@ open class Soldier(
         val distanceTraveled = legs.move()
         println("Soldier moved: $distanceTraveled m")
     }
+
+    companion object {
+        val UNDEFINED = Soldier(NoWeapon(), Legs.NO_LEGS, Ranks.NO_RANK)
+    }
 }
 
+// TODO rethink this name and function! this is dumb!
+interface Directionable {
+    val orientation: Float  // some angle value ?
+}
 
+// TODO rethink this name and function! this is dumb!
 class DirectionableSoldier : Soldier(
     M4AssaultRifle(),
-    AthleticLegs()
+    AthleticLegs(),
+    COLONEL
 ), Directionable {
 
     override val orientation: Float
@@ -79,10 +132,6 @@ class DirectionableSoldier : Soldier(
         } else {
             orientation
         }
-}
-
-interface Directionable {
-    val orientation: Float  // some angle value ?
 }
 
 // TODO add other gadgets
@@ -101,7 +150,7 @@ class Scientist(
     }
 
     override fun attack(longitude: Longitude, latitude: Latitude) {
-        println("")
+        println("Scientist DO NOT attack at longitude: $longitude - latitude: $latitude")
     }
 }
 

@@ -48,10 +48,10 @@ class Barracks : Building<InfantryUnits, Infantry> {
             InfantryUnits.Robocops -> buildRobocops()
         }
 
-    private fun buildRanger() = Soldier(M4AssaultRifle(), RegularLegs())
-    private fun buildGrenadiers() = Soldier(GrenadeLauncher(), AthleticLegs())
-    private fun buildMedics() = Soldier(M4AssaultRifle(), ExoSkeletonLegs())
-    private fun buildRobocops() = Soldier(GrenadeLauncher(), ExoSkeletonLegs())
+    private fun buildRanger() = Soldier(M4AssaultRifle(), RegularLegs(), Ranks.LIEUTENANT)
+    private fun buildGrenadiers() = Soldier(GrenadeLauncher(), AthleticLegs(), Ranks.LIEUTENANT)
+    private fun buildMedics() = Soldier(M4AssaultRifle(), ExoSkeletonLegs(), Ranks.LIEUTENANT)
+    private fun buildRobocops() = Soldier(GrenadeLauncher(), ExoSkeletonLegs(), Ranks.LIEUTENANT)
 }
 
 class VehicleFactory : Building<MechanizedUnits, Vehicle> {

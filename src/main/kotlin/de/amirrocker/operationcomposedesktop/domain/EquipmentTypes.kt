@@ -14,6 +14,11 @@ import de.amirrocker.operationcomposedesktop.domain.Constants.REGULAR_LEGS_TURNI
  * TODO rethink the name
  */
 interface Legs {
+    object NO_LEGS : Legs {
+        override fun move(): DistanceTraveled = 0.0
+        override fun turn(): SidesTurned = 0
+
+    }
     fun move():DistanceTraveled
     fun turn():SidesTurned
 }
