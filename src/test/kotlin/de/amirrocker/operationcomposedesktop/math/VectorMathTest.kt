@@ -1,6 +1,7 @@
 package de.amirrocker.operationcomposedesktop.math
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class VectorMathTest {
@@ -38,6 +39,72 @@ class VectorMathTest {
     }
 
     // Vector with functions tests - not yet started.
+    @Test
+    internal fun `given two 3D vectors when scalar product then we expect a single scalar as result`() {
+
+        // given
+        val va = asVector3(3.0, 4.0, 5.0)
+        val vb = asVector3(3.0, 2.0, 1.0)
+
+        val vResult = 22.0
+
+        // when
+        val result:Double = va.times(vb)
+
+        // then
+        assertEquals(vResult, result, "expect a vector $vResult but was $result")
+    }
+
+    @Test
+    internal fun `given two 3D vectors when vector product then we expect the normal vector`() {
+        // given
+        val va = asVector3(3.0, 4.0, 5.0)
+        val vb = asVector3(3.0, 2.0, 1.0)
+        val vResult = asVector3(-6.0, 12.0, -6.0)
+
+        // when
+        val result = va % vb
+        // then
+        // then
+        assertEquals(vResult, result, "expect a vector $vResult but was $result")
+    }
+
+    @Test
+    internal fun `given x and z vectors when vector product then we expect the y vector`() {
+        // given
+        val va = asVector3(1.0, 0.0, 0.0)
+        val vb = asVector3(0.0, 0.0, 1.0)
+        val vResult = asVector3(0.0, -1.0, 0.0)
+
+        // when
+        val result = va % vb
+
+        // then
+        assertEquals(vResult, result, "expect a vector $vResult but was $result")
+    }
+
+    @Test
+    internal fun `need at least two words`() {
+        // make an orthonormal basis:
+        // - normalize the starting vector A
+        // - find vector C = { A x B | Vector3,Vector3 }
+        // if C = zero magnitude -> then A and B are parallel -> give up
+        // normalize C
+        // make A and B orthogonal (right angled) -> B = C x A
+
+        val va = asVector3(2.0, 4.0, 8.0)
+        val vb = asVector3(2.0, 4.0, 8.0)
+
+        val normalizedA = va.normalize()
+        val C = normalizedA % vb
+        val magnitudeC = C.magnitude()
+        if(magnitudeC == 0.0) println("parallel vectors!")
+        val normalizedC = C.normalize()
+        val vbOrthogonal = normalizedC % normalizedA
+        
+
+    }
+
     @Test
     internal fun `test calculator method`() {
 //        println(calculator)

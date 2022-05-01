@@ -44,6 +44,9 @@ dependencies {
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 
+    // for JVM:
+    testImplementation("org.amshove.kluent:kluent:1.4")
+
 }
 
 

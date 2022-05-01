@@ -18,6 +18,11 @@ interface Vector<T : Number> {
     operator fun div(b: T): Vector<T>
     operator fun times(b: T): Vector<T>
 
+    // dot-product aka scalar-product
+    operator fun times(vb: Vector<T>): T
+
+    operator fun rem(vb:Vector<T>): Vector<T>
+
     operator fun plus(vb: Vector<T>): Vector<T>
     operator fun minus(vb: Vector<T>): Vector<T>
 }
@@ -59,6 +64,10 @@ data class Vector3(
         y = y * b,
         z = z * b,
     )
+
+    override fun times(vb: Vector<Double>): Double = dotProduct(this, vb)
+
+    override fun rem(vb: Vector<Double>): Vector<Double> = vectorProduct(this, vb)
 
     override fun magnitude(): Double = sqrt(x * x + y * y + z * z)
 
@@ -128,6 +137,10 @@ data class Vector4(
         w = w * b,
     )
 
+    override fun times(vb: Vector<Double>): Double = dotProduct4D(this, vb as Vector4)
+
+    override fun rem(vb: Vector<Double>): Vector<Double> = vectorProduct4(this, vb as Vector4)
+
     companion object {
         fun ofFloat(x: Float, y: Float, z: Float, w: Float): Vector4 =
             Vector4(x.toDouble(), y.toDouble(), z.toDouble(), w.toDouble())
@@ -138,10 +151,35 @@ data class Vector4(
 
 }
 
-// simple factory methods
-fun <T : Number> asVector3(x: T, y: T, z: T): Vector3 = Vector3(x.toDouble(), y.toDouble(), z.toDouble())
+// "new" value class - since Kotlin 1.5
+@JvmInline
+value class SimplePrimitiveFactory(
+    val value: Number
+) {
+    companion object {
+        fun asLong(l:Long) {
+            SimplePrimitiveFactory(l)
+        }
+        fun asDouble(d:Double) {
+            SimplePrimitiveFactory(d)
 
-fun <T : Number> asVector3(x: T, y: T, z: T, block: (T, T, T) -> Vector3): Vector3 = block(x, y, z)
+        }
+        fun asInt(i:Int) {
+            SimplePrimitiveFactory(i)
+        }
+        fun asFloat(f:Float) {
+            SimplePrimitiveFactory(f)
+        }
+    }
+}
+
+// simple factory methods
+fun <T : Number> asVector3(x: T, y: T, z: T): Vector3 = Vector3(x.toDouble(),
+                                                                y.toDouble(),
+                                                                z.toDouble()
+                                                        )
+
+fun <T : Number> asVector4(x: T, y: T, z: T, w: T, block: (T, T, T, T) -> Vector4): Vector4 = block(x, y, z, w)
 
 // ****************** FUNKTION COMPOSITION ****************************** //
 
@@ -250,7 +288,43 @@ val subtractVector = { va: Vector3, vb: Vector3 ->
  * angle of 180° -> -1
  *
  */
-val dotProduct = { va: Vector3, vb: Vector3 -> va.x * vb.x + va.y * vb.y + va.z * vb.z }
+val dotProduct = { va: Vector<Double>, vb: Vector<Double> -> va.x * vb.x + va.y * vb.y + va.z * vb.z }
+
+val dotProduct4D = { va: Vector4, vb: Vector4 -> va.x * vb.x + va.y * vb.y + va.z * vb.z + va.w * vb.w }
+
+/**
+ * vector-product of two vectors ( aka cross-product )
+ * returns a result vector
+ * Note: cross product is not commutative -> A * B != B * A
+ *       and only applicable in a 3+ dimensional space.
+ */
+val vectorProduct = { va: Vector<Double>, vb: Vector<Double> ->
+    Vector3(
+        va.y * vb.z - va.z * vb.y,
+        va.z * vb.x - va.x * vb.z,
+        va.x * vb.y - va.y * vb.x
+    )
+}
+
+/**
+ * Four-dimensional Euclidean space does not have a binary cross product.
+ * There is no definition for R4 = {x,y,z,w}, only R3 = {x,y,z}
+ * Cross products are only defined in R3 and R7, because of the direct
+ * relationship of the cross-product to quaternions and octonions respectively.
+ * Here we opt for simply multiplying w - since it most of the time is 1.
+ * If not we treat it as scalar value.
+ *
+ * See here for a better explanation:
+ * https://math.stackexchange.com/questions/2317604/cross-product-of-4d-vectors
+ */
+val vectorProduct4 = { va: Vector<Double>, vb: Vector<Double> ->
+    Vector4(
+        va.y * vb.z - va.z * vb.y,
+        va.z * vb.x - va.x * vb.z,
+        va.x * vb.y - va.y * vb.x,
+        va.w * vb.w
+    )
+}
 
 /**
  * a approximated magnitude - often all we need to know is whether one vector is longer than another.
