@@ -22,26 +22,37 @@ class OrdersTest {
         COMBAT,
         ADMINISTRATION,
         SPECIAL,
+        UNDEFINED,
     }
 
     interface OrderRequest {
         val requestType : OrderRequestType
     }
 
-    fun OrderRequest.orderRequest(requestorType: OrderRequestType) = {
-        requestType = request
-    }
+    class MoveOrderRequest(
+        override val requestType: OrderRequestType = OrderRequestType.UNDEFINED
+    ): OrderRequest {}
+
+    fun OrderRequest(init: OrderRequest.()->OrderRequest):OrderRequest =
+        OrderRequest().apply(init)
+
+
+    fun OrderRequest.MoveTo(init:OrderRequest.() -> OrderRequest):OrderRequest =
+        MoveOrderRequest().apply(init)
+
 
     @Test
     internal fun `given a HQ when received order then prepare and store the order in queue`() {
 
-        val preparedOrder = hq.produceOrder( orderRequest {
-            requestType = MoveTo {
-                from = FromLocation.current()
-                to = ToLocation.selected()
-                moveType = MoveType.FAST
+        val preparedOrder = hq.produceOrder(
+            orderRequest {
+                requestType = MoveTo {
+                    from = FromLocation.current()
+                    to = ToLocation.selected()
+                    moveType = MoveType.FAST
+                }
             }
-        })
+        )
 
         hq.addOrder(preparedOrder)
 
